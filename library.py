@@ -29,6 +29,7 @@ class Library(BoxLayout):
 
         #class funtions
         def add_to_db(self):
+            ###TODO: Make this work###
             if(dropdown.value == "Show"):
                 new_release = Show.Show(title.text, director.text, ep_length.text, ep_count.text)
             elif(dropdown.value == "Movie"):
