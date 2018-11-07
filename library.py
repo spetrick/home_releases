@@ -11,6 +11,7 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.textinput import TextInput
 from kivy.uix.dropdown import DropDown
 from kivy.uix.button import Button
+from kivy.base import runTouchApp
 
 #Test the Show and Movie classes with test data
 steinsgate = Show.Show("Steins;Gate", "Hiroshi Hamasaki", 30, 26)
@@ -30,9 +31,9 @@ class Library(BoxLayout):
         #class funtions
         def add_to_db(self):
             ###TODO: Make this work###
-            if(dropdown.value == "Show"):
+            if(main_button.text == "Show"):
                 new_release = Show.Show(title.text, director.text, ep_length.text, ep_count.text)
-            elif(dropdown.value == "Movie"):
+            elif(main_button.text == "Movie"):
                 new_release = Movie.Movie(title.text, director.text, film_length.text)
             MongoCon.insert(new_release.export())
 
@@ -44,12 +45,16 @@ class Library(BoxLayout):
         #Dropdown doesn't actually select anything yet
         dropdown = DropDown()
         show_btn = Button(text = "Show", size_hint_y = None, height = 45)
-        show_btn.bind(on_press = lambda show_btn: dropdown.select(show_btn.text))
+        show_btn.bind(on_release = lambda show_btn: dropdown.select(show_btn.text))
         movie_btn = Button(text = "Movie", size_hint_y = None, height = 45)
-        movie_btn.bind(on_press = lambda movie_btn: dropdown.select(movie_btn.text))
+        movie_btn.bind(on_release = lambda movie_btn: dropdown.select(movie_btn.text))
+        main_button = Button(text = "Choose Type", size_hint = (None, None))
+        main_button.bind(on_release = dropdown.open)
+        dropdown.bind(on_select = lambda instance, x: setattr(main_button, 'text', x))
         dropdown.add_widget(show_btn)
         dropdown.add_widget(movie_btn)
-        input_layout.add_widget(dropdown)
+        input_layout.add_widget(main_button)
+#        input_layout.add_widget(dropdown)
         input_layout.add_widget(Label(text = 'Title'))
         title = TextInput(mutliline = False)
         input_layout.add_widget(title)
@@ -95,7 +100,7 @@ class Library(BoxLayout):
         #Create a list of titles in the db to display
         list_of_titles = ''
         for ReleaseObj in release_list:
-            list_of_titles += ReleaseObj.getName()
+            list_of_titles += ReleaseObj.getName() + "\n"
         list_layout.add_widget(Label(text = list_of_titles))
         main_layout.add_widget(list_layout)
         main_layout.add_widget(input_layout)
