@@ -11,6 +11,7 @@ class Show(Release):
 
     def export(self):
         ret = Release.export(self)
+        ret["type"] = "show"
         if(self.episodes != None):
             ret["episodes"] = self.episodes
         if(self.runtime != None):

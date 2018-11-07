@@ -18,8 +18,20 @@ class Release:
     def setYear(self, year):
         self.year = year
     
-    def getYear():
-        return year
+    def getYear(self):
+        return self.year
+
+    def setPublisher(self, publisher):
+        self.publisher = publisher
+
+    def getPublisher(self):
+        return self.publisher
+
+    def getName(self):
+        return self.name
+
+    def setName(self, name):
+        self.name = name
 
     def __str__(self):
         ret = self.name + " by " + self.director
