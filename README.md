@@ -1,1 +1,1 @@
- #home_releases
+This is a simple Python application to read and display a movie/tv show collection created by the user along with user entered metadata. I've just begun work on it, so most features are not yet implemented.
