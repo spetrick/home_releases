@@ -3,6 +3,7 @@ import Show
 #Mongo isn't the correct db for this, but I wanted to practice with it
 #I will be adding an SQLite module eventually and am using the modules here for ease of replacement
 import mongo
+from functools import partial
 #Kivy is a cross platform UI framework with rich support for touch input as well as keyboard/mouse
 import kivy
 from kivy.app import App
@@ -12,6 +13,11 @@ from kivy.uix.textinput import TextInput
 from kivy.uix.dropdown import DropDown
 from kivy.uix.button import Button
 from kivy.base import runTouchApp
+from kivy.lang import Builder
+from kivy.uix.screenmanager import ScreenManager, Screen
+
+
+sm = ScreenManager()
 
 #Test the Show and Movie classes with test data
 steinsgate = Show.Show("Steins;Gate", "Hiroshi Hamasaki", 30, 26)
@@ -21,9 +27,22 @@ steinsgate.setActors(["J. Michael Tatum", "Caitlin Glass"])
 steinsgate.setActors(["Ashly Burch"])
 
 
+# Builder.load_string("""
+# <Library>:
+#     BoxLayout:
+#         Button:
+#             text: 'Go to batch'
+#             on_press: root.manager.current = 'batch'
+# <Batch>:
+#     BoxLayout:
+#         Button:
+#             text: 'Back to Library'
+#             on_press: root.manager.current = 'library'
+# """)
 
 
-class Library(BoxLayout):
+
+class Library(Screen):
     def __init__(self, **kwargs):
         super(Library, self).__init__(**kwargs)
         #class variables
@@ -36,6 +55,9 @@ class Library(BoxLayout):
             elif(main_button.text == "Movie"):
                 new_release = Movie.Movie(title.text, director.text, film_length.text)
             MongoCon.insert(new_release.export())
+
+        def batch_add(self):
+            sm.current = 'batch'
 
         main_layout = BoxLayout(padding = 10, orientation = "horizontal")
         self.add_widget(main_layout)
@@ -73,6 +95,9 @@ class Library(BoxLayout):
         add_button = Button(text = "Add Release")
         add_button.bind(on_press = add_to_db)
         input_layout.add_widget(add_button)
+        batch_button = Button(text = "Batch Add")
+        batch_button.bind(on_press = batch_add)
+        input_layout.add_widget(batch_button)
 
         #Just run locally on a test instance
         host = "mongodb://localhost:27017"
@@ -105,10 +130,28 @@ class Library(BoxLayout):
         main_layout.add_widget(list_layout)
         main_layout.add_widget(input_layout)
 
+class Batch(Screen):
+    def __init__(self, **kwargs):
+        #class variables
+        #class functions
+        def submit_to_db(text, *args):
+            print self.input_block.text
+        super(Batch, self).__init__(**kwargs)
+        main_layout = BoxLayout(orientation = "horizontal")
+        self.input_block = TextInput(multiline = True, size_hint_x = 20, id = "user_input")
+        main_layout.add_widget(self.input_block)
+        submit_button = Button(text = "Submit")
+        submit_button.bind(on_press = submit_to_db)
+        main_layout.add_widget(submit_button)
+        self.add_widget(main_layout)
+
+
+sm.add_widget(Library(name = 'library'))
+sm.add_widget(Batch(name = 'batch'))
         
 class LibraryApp(App):
     def build(self):
-        return Library()
+        return sm
 
 if __name__ == '__main__':
     LibraryApp().run()
